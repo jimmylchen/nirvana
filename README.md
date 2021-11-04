@@ -1,105 +1,58 @@
-Python Project Boilerplate
-==========================
+# Overview
 
-This repo provides a standardized template for modern Python projects based
-on the layout [recommended by Kenneth Reitz](http://www.kennethreitz.org/essays/repository-structure-and-python).
+I created this project with a boilerplate hoping it would save me some time but there is a bunch of Python specific things I'm not familiar with so it ended up taking a bit more time than I expected.
 
-Features:
-* Editable install support
-* Support for installing development dependencies through setup.py
-* PyTest unit-test support
-* PyLint
-* An [.editorconfig](http://editorconfig.org/) file
-* Sphinx documentation generation
-* `pyproject.toml` PEP 517/518 support
+## Backend infra
+Before starting on the code I spun up a lightweight DynamoDB database fronted by API Gateway following this guide: https://aws.amazon.com/blogs/compute/using-amazon-api-gateway-as-a-proxy-for-dynamodb/
 
-# Getting Started
+You can view the output yourself by going to the endpoints yourself:
+* https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api1/1
+* https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api2/1
+* https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api3/1
 
-The project is ready to run as is. You will need Python 2.7 or later.
+I added the ability to add rows to the table by making a post request to the endpoint https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api3/
 
-## Create a Virtual Environment
+If you run on a UNIX system, you can use `curl`. Something like
+```
+curl -X POST "https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api3"
+   -H "Content-Type: application/json"
+   -d '{"member_id": 2, "stop_loss": 20000, "deductible": 1500, "oop_max": 8000}'
+```
+
+Get the result by making a GET request
+```
+curl -X GET "https://2zkyzix7jl.execute-api.us-west-2.amazonaws.com/test/api3/2"
+   -H "Content-Type: application/json"
+```
+
+Or you can just view the output by loading the above URL in the browser directly.
+
+## Code
+As for the actual code, there are a few main bits.
+* Data fetching
+* Response data modeling
+* Coalescing strategy
+* Unit tests
+
+For the coalescing strategy as well as for the response data model conversion, I decided to go with a functional approach which allows developers to specify functions themselves depending on the output and the strategy. This is useful for containerizing concrete logic onto potentially different output for APIs.
+
+There are a couple of tests but not as many as I'd like.
+
+## Run the main function
+Hopefully the following commands will work for you.
 
 After cloning or downloading the repo, create a Python virtual environment with:
-
 ```
 python -m venv .virtualenv
-```
-
-for Python 3.x.
-
-For Python 2.7, use the `virtualenv` command.
-
-This will create the virtual environment in the project directory as `.virtualenv`. This is the convention I prefer as it keeps projects isolated from one another, but you can create your virtual environment whereever you like.
-
-## Activate the Virtual Environment
-
-Now activate the virtual environment. on macOS, Linux and Unix systems, use:
-
-```
 source .virtualenv/bin/activate
+pip install -e .
+python src/nirvana/main.py
 ```
 
-On Windows with `cmd.exe`:
-
-```
-.virtualenv\Scripts\activate.bat
-```
-
-Or Windows with PowerShell:
-
-```
-.\.virtualenv2\Scripts\activate.ps1
-```
-
-## Install the Development Environment
-
-Now run:
+## Run tests
+I didn't get a chance to write tests for everything. Hope that's okay!
 
 ```
 pip install -e .[dev]
+python -m pytest
 ```
-
-This will install the packages the project depends on in production as well as packages needed during development.
-
-* The `-e` option specifies that you wish to install the package in "editable" mode for development.
-* The `.[dev]` argument directs pip to install the package that is defined by the `setup.py` file the in the current directory and to additionally install the extra depdencies defined in the "dev" group. The additional dependencies include things lik ethe Sphinx documentation generator, pytest, pylint and other development packages that end-users of the package will not need.
-
-Refer to the [pip install documentation](https://pip.pypa.io/en/stable/reference/pip_install/#) for more information on these options.
-
-At this point, you are ready to start modifying to template for your own needs.
-
-## Testing
-
-You can run unit tests through setup.py with:
-
-```
-python setup.py test
-```
-
-or just run pytest directly:
-
-```
-pytest
-```
-
-## Documentation
-
-To generate Sphinx documentation, run:
-
-```
-python setup.py build_sphinx
-```
-
-The generated documentation will be available in `build/sphinx`
-
-## Distribution
-
-When you are ready to distribute your Python package, build a wheel with:
-
-```
-python setup.py bdist_wheel
-```
-
-> Alternatively, you can add the `--universal` option to the `bdist_wheel` command to build a "univeral" distribution that can be used with both Python 3.x and 2.7.x.
-
-The wheel will be generated in th `dist` directory.
