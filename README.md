@@ -36,7 +36,11 @@ As for the actual code, there are a few main bits.
 
 For the coalescing strategy as well as for the response data model conversion, I decided to go with a functional approach which allows developers to specify functions themselves depending on the output and the strategy. This is useful for containerizing concrete logic onto potentially different output for APIs.
 
-There are a couple of tests but not as many as I'd like.
+Workflow
+* Fetched data from all 3 APIs
+* Response is transformed into a sensible data structure
+* The resulting output for each API is then aggregated again into a dictionary that can then be used for a coalescing strategy. 
+* Run different coalescing strategies on the aggregate results
 
 ## Run the main function
 Hopefully the following commands will work for you.
